@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+
+	<context:annotation-config></context:annotation-config>
+	<context:component-scan base-package="com.crm_demo"></context:component-scan>
+	
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<mvc:resources location="/resources/" mapping="/resources/**"></mvc:resources>
+	
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/views/"></property>
+	<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	<!-- Defining DataSource / Connection Pool -->
+	<bean id="myDataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+	<property name="driverClass" value="com.mysql.cj.jdbc.Driver"></property>
+	<property name="jdbcUrl"
+		value="jdbc:mysql://localhost:3307/web_customer_tracker?useSSL=false&amp;serverTimezone=UTC">
+	</property>
+	<property name="user" value="springstudent"></property>
+	<property name="password" value="springstudent"></property>
+	
+	<!-- Connection pool Properties for C3PO  -->
+	<property name="minPoolSize" value="5"></property>
+	<property name="maxPoolSize" value="20"></property>
+	<property name="maxIdleTime" value="30000"></property>
+	</bean>
+
+	<!-- Setting up Hibernate Session Factory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	<property name="dataSource" ref="myDataSource"></property>
+	<property name="packagesToScan" value="com.crm_demo.models"></property>
+	<property name="hibernateProperties">
+		<props>
+			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+			<prop key="hibernate.show_sql">true</prop>
+		</props>
+	</property>
+	</bean>
+	
+	<!-- Setting up Hibernate Transaction Manager -->
+	<bean id="myTransactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+	<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- Enable Configuration of Transactional behaviour based on annotations -->
+	<tx:annotation-driven transaction-manager="myTransactionManager" />
+</beans>
